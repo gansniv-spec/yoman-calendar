@@ -1,20 +1,207 @@
 <!DOCTYPE html>
-<html lang="he">
+<html lang="en" dir="ltr">
 <head>
-  <meta charset="UTF-8">
-  <title>Yoman Calendars</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Syncit – Sync your life to Calendar Events</title>
+  <meta name="description" content="Syncit automatically turns WhatsApp messages into tasks and calendar events (Google / Outlook / Apple). Local processing, ICS feed, and direct sync." />
   <style>
-    body { font-family: sans-serif; margin: 40px; direction: rtl; }
-    h1 { color: #444; }
-    ul { line-height: 1.8; }
+    :root {
+      --bg:#0b141a;           /* dark base */
+      --surface:#111b21;      /* cards */
+      --text:#e9edef;         /* main text */
+      --muted:#aebac1;        /* secondary */
+      --wa-green:#25d366;     /* WhatsApp green */
+      --wa-teal:#128c7e;      /* WhatsApp teal */
+      --accent:#00a884;       /* WAB biz accent */
+      --border:rgba(255,255,255,.12);
+      --glass:rgba(255,255,255,.06);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color:var(--text);
+      background: radial-gradient(1200px 700px at 80% -10%, rgba(0,168,132,.15), transparent 60%),
+                  radial-gradient(900px 600px at 10% 110%, rgba(37,211,102,.12), transparent 60%),
+                  linear-gradient(180deg, #0a1014, #0e171c 35%, #0b141a);
+    }
+    a{color:inherit; text-decoration:none}
+
+    /* Top bar */
+    .topbar{position:sticky; top:0; z-index:40; backdrop-filter:saturate(120%) blur(8px);
+      background:linear-gradient(180deg, rgba(17,27,33,.85), rgba(17,27,33,.65)); border-bottom:1px solid var(--border)}
+    .container{max-width:1180px; margin:0 auto; padding:14px 20px;}
+    .row{display:flex; align-items:center; justify-content:space-between; gap:14px}
+    .brand{display:flex; align-items:center; gap:10px}
+    .logo{width:40px; height:40px; border-radius:12px; background:radial-gradient(circle at 30% 30%, #25d366 0 52%, #128c7e 70%);
+      box-shadow:0 6px 20px rgba(0,168,132,.35)}
+    .brand strong{letter-spacing:.2px}
+    nav a{color:var(--muted); text-decoration:none; margin-inline:10px; font-size:14px}
+    nav a:hover{color:var(--text)}
+    .btn{display:inline-flex; align-items:center; gap:8px; padding:12px 16px; border-radius:999px; border:1px solid transparent; cursor:pointer; text-decoration:none; font-weight:600}
+    .btn.primary{background:linear-gradient(135deg, var(--wa-green), var(--accent)); color:#052d23}
+    .btn.ghost{border-color:var(--border); color:var(--muted); background:transparent}
+
+    /* Hero */
+    .hero{padding:36px 20px 10px}
+    .hero-grid{display:grid; grid-template-columns:1.08fr .92fr; gap:28px; align-items:center}
+    @media (max-width:920px){ .hero-grid{grid-template-columns:1fr} }
+    h1{font-size:clamp(30px,6vw,50px); line-height:1.08; margin:0 0 12px}
+    p.lead{color:var(--muted); font-size:clamp(15px,2.6vw,18px); margin:0 0 16px}
+
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border); border-radius:20px; padding:20px}
+
+    /* Sections */
+    section{padding:36px 20px}
+    .section-title{font-size:22px; margin:0 0 12px}
+    .grid{display:grid; gap:14px}
+    .cols-3{grid-template-columns:repeat(3, 1fr)}
+    @media (max-width:920px){ .cols-3{grid-template-columns:1fr} }
+    .tile{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border); border-radius:16px; padding:16px}
+    .tile h3{margin:0 0 6px; font-size:16px}
+
+    .status{margin-top:12px; padding:12px; border-radius:14px; border:1px solid var(--border); color:var(--muted);}
+    .status.ok{border-color:rgba(37,211,102,.35); background:rgba(37,211,102,.1); color:#dcf8c6}
+    .status.warn{border-color:rgba(255,200,0,.35); background:rgba(255,200,0,.08); color:#ffe69b}
+
+    /* Footer */
+    footer{padding:18px 20px; color:var(--muted); font-size:13px; text-align:center; border-top:1px solid var(--border)}
   </style>
 </head>
 <body>
-  <h1>יומני משתמשים (ICS)</h1>
-  <ul>
-    <li><a href="users/972544584780.ics">972544584780.ics</a></li>
-    <!-- ניתן להוסיף עוד משתמשים או קישורים ל־QR -->
-  </ul>
-  <p>כל משתמש יכול להירשם לקובץ ה־ICS שלו באמצעות הקישור או QR.</p>
+  <div class="topbar">
+    <div class="container">
+      <div class="row">
+        <div class="brand"><div class="logo" aria-hidden="true"></div><strong>Syncit</strong></div>
+        <nav>
+          <a href="#overview">Overview</a>
+          <a href="#features">Features</a>
+          <a href="#privacy">Privacy</a>
+          <a href="#download">Download</a>
+        </nav>
+        <a class="btn primary" href="#download">Download for Windows</a>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <!-- HERO -->
+    <section id="overview" class="hero">
+      <div class="container">
+        <div class="hero-grid">
+          <div>
+            <h1>Sync your life to Calendar Events</h1>
+            <p class="lead"><strong>Just sync it • Sync to life</strong></p>
+            <p class="lead">Syncit automatically converts WhatsApp messages into tasks and calendar events (<strong>Google / Outlook / Apple</strong>). Messages are ingested locally, parsed for dates/times/locations, and synced directly to your calendar - fully automated.</p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px">
+              <span class="btn ghost">Private by design</span>
+              <span class="btn ghost">No manual steps</span>
+              <span class="btn ghost">Idempotent sync</span>
+            </div>
+          </div>
+
+          <!-- Right-side promo card -->
+          <div class="card">
+            <h3 style="margin:0 0 8px; font-size:18px">Get started in minutes</h3>
+            <ol style="margin:0; padding-left:18px; color:var(--muted)">
+              <li>Download and install Syncit for Windows.</li>
+              <li>Open Syncit — it will launch the local setup page.</li>
+              <li>Connect your calendar (Google / Outlook / Apple).</li>
+            </ol>
+            <div id="installStatus" class="status" style="margin-top:12px">Checking if Syncit is already installed…</div>
+            <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
+              <a id="primaryCta" class="btn primary" href="https://syncit.life/downloads/yoman-setup.exe">⬇️ Download for Windows</a>
+              <a id="openLocal" class="btn ghost" href="#" style="display:none">🚀 Open locally</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features">
+      <div class="container">
+        <h2 class="section-title">What Syncit offers</h2>
+        <div class="grid cols-3">
+          <div class="tile"><h3>Accuracy</h3><p>Only messages forwarded to the ‘Calendar’ group will be turned into calendar events.</p></div>
+          <div class="tile"><h3>Flexible inputs</h3><p>WhatsApp, SMS, pasted text, and exports (EN/HE).</p></div>
+          <div class="tile"><h3>Privacy</h3><p>Local processing first; ICS/Calendar sync by consent.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRIVACY SNAPSHOT -->
+    <section id="privacy">
+      <div class="container">
+        <h2 class="section-title">Privacy snapshot</h2>
+        <div class="grid cols-3">
+          <div class="tile"><h3>Local by default</h3><p>WhatsApp content is processed on your PC.</p></div>
+          <div class="tile"><h3>Easy revocation</h3><p>Easily disconnect any linked calendar (Google, Outlook, or Apple) from the Syncit interface. You can also revoke Google OAuth access in your Account settings.</p></div>
+          <div class="tile"><h3>No cloud storage</h3><p>Messages are not stored on our servers. Your data stays on your machine.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DOWNLOAD -->
+    <section id="download">
+      <div class="container">
+        <h2 class="section-title">Download</h2>
+        <p class="lead">Works on Windows 10/11. macOS and Linux builds coming soon.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center">
+          <a id="primaryCta2" class="btn primary" href="https://syncit.life/downloads/yoman-setup.exe">⬇️ Download for Windows</a>
+          <a id="openLocal2" class="btn ghost" href="#" style="display:none">🚀 Open locally</a>
+        </div>
+        <div id="installStatus2" class="status" style="margin-top:12px">We will try to detect a local Syncit installation…</div>
+      </div>
+    </section>
+  </main>
+
+  <footer>© Syncit.life • All rights reserved</footer>
+
+  <script>
+    // Detect if local service is running and adjust CTAs
+    async function detectLocal(){
+      const endpoints = [
+        'http://localhost:8085/health.json',
+        'http://127.0.0.1:8085/health.json'
+      ];
+      for (const url of endpoints){
+        try {
+          const r = await fetch(url, { cache:'no-store', mode:'cors' });
+          if (r.ok) return url.replace('/health.json','');
+        } catch(e) {}
+      }
+      return null;
+    }
+
+    (async () => {
+      const base = await detectLocal();
+      const installBox = document.getElementById('installStatus');
+      const installBox2 = document.getElementById('installStatus2');
+      const openLocal = document.getElementById('openLocal');
+      const openLocal2 = document.getElementById('openLocal2');
+      const primaryCta = document.getElementById('primaryCta');
+      const primaryCta2 = document.getElementById('primaryCta2');
+
+      if (base){
+        installBox.classList.add('ok');
+        installBox.textContent = '✅ Syncit is installed and running on this computer';
+        openLocal.style.display = 'inline-flex';
+        openLocal.href = base + '/connect.html';
+        installBox2.classList.add('ok');
+        installBox2.textContent = '✅ We detected a local Syncit service. You can open it directly.';
+        openLocal2.style.display = 'inline-flex';
+        openLocal2.href = base + '/connect.html';
+        // Optionally soften primary CTAs when installed
+        primaryCta.textContent = 'Re-download for Windows';
+        primaryCta2.textContent = 'Re-download for Windows';
+      } else {
+        installBox.textContent = 'Syncit is not installed yet. Download and run the installer to begin.';
+        installBox2.textContent = 'No local service detected yet.';
+      }
+    })();
+  </script>
 </body>
 </html>
